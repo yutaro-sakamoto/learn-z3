@@ -10,3 +10,11 @@ prove(If(v > 0, v, -v) == (v + mask) ^ mask)
 
 x = FP('x', FPSort(3, 4))
 print(10 + x)
+
+Z = IntSort()
+Tree = Datatype('Tree')
+Tree.declare('Empty')
+Tree.declare('Node', ('left', Tree), ('data', Z), ('right', Tree))
+Tree = Tree.create()
+t = Const('t', Tree)
+solve(t != Tree.Empty)
