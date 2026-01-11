@@ -80,3 +80,21 @@ s.assert_and_track(q, p)
 s.assert_and_track(r, v)
 print(s.check())
 print(s.unsat_core())
+
+s = Solver()
+f = Function('f', Z, Z)
+x, y = Ints('x y')
+s.add(f(x) > y, f(f(y)) == y)
+print(s.check())
+print(s.model())
+
+m = s.model()
+for d in m:
+    print(d, m[d])
+
+num_entries = m[f].num_entries()
+for i in range(num_entries):
+    print(m[f].entry(i))
+print("else", m[f].else_value())
+
+print(m.eval(x), m.eval(f(3)), m.eval(f(4)))
