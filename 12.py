@@ -163,3 +163,9 @@ def mk_lit(m, p):
         return p
     else:
         return Not(p)
+
+print(tactics())
+
+for name in tactics():
+    t = Tactic(name)
+    print(name, t.help(), t.param_descrs())
