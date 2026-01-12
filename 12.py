@@ -73,28 +73,93 @@ s.add(Not(q))
 s.assert_and_track(q, p)
 print(s.check())
 
-p, q, r, v = Bools('p q r v')
+#p, q, r, v = Bools('p q r v')
+#s = Solver()
+#s.add(Not(q))
+#s.assert_and_track(q, p)
+#s.assert_and_track(r, v)
+#print(s.check())
+#print(s.unsat_core())
+#
+#s = Solver()
+#s.set("produce-proofs", True)
+#f = Function('f', Z, Z)
+#x, y = Ints('x y')
+#s.add(f(x) > y, f(f(y)) == y)
+#print(s.check())
+#print(s.model())
+
+#m = s.model()
+#for d in m:
+#    print(d, m[d])
+#
+#num_entries = m[f].num_entries()
+#for i in range(num_entries):
+#    print(m[f].entry(i))
+#print("else", m[f].else_value())
+#
+#print(m.eval(x), m.eval(f(3)), m.eval(f(4)))
+
+#print(s.statistics())
+#
+#print(s.proof())
+
+a, b, c, d = Bools('a b c d')
 s = Solver()
-s.add(Not(q))
-s.assert_and_track(q, p)
-s.assert_and_track(r, v)
-print(s.check())
-print(s.unsat_core())
+s.add(Implies(a, b), Implies(c, d))
+print(s.consequences([a, c], [b, c, d]))
 
-s = Solver()
-f = Function('f', Z, Z)
-x, y = Ints('x y')
-s.add(f(x) > y, f(f(y)) == y)
-print(s.check())
-print(s.model())
+s = SolverFor("QF_FD")
+#s.add(F)
 
-m = s.model()
-for d in m:
-    print(d, m[d])
+def block_model(s):
+    m = s.model()
+    s.add(Or([f() != m[f]]))
 
-num_entries = m[f].num_entries()
-for i in range(num_entries):
-    print(m[f].entry(i))
-print("else", m[f].else_value())
+def simple_cdclT(clauses):
+    prop = Solver()
+    theory = Solver()
+    abs = {}
+    prop.add(abstract_clauses(abs, clauses))
+    theory.add([p == abs[p] for p in abs])
+    while True:
+        is_sat = prop.check()
+        if sat == is_sat:
+            m = prop.model()
+            lits = [mk_lit(m, abs[p]) for p in abs]
+            if unsat == theory.check(lits):
+                prop.add(Not(And(tehory.unsat_core())))
+            else:
+                print(theory.model())
+                return
+        else:
+            print(is_sat)
+            return
 
-print(m.eval(x), m.eval(f(3)), m.eval(f(4)))
+index = 0
+
+def abstract_atom(abs, atom):
+    global index
+    if atom in abs:
+        return abs[atom]
+    p = Bool('p_%d' % index)
+    index += 1
+    abs[atom] = p
+    return p
+
+def abstract_lit(abs, lit):
+    if is_not(lit):
+        return Not(abstract_atom(abs, lit.arg(0)))
+    return abstract_atom(abs, lit)
+
+def abstract_clause(abs, clause):
+    return Or([abstract_lit(abs, lit) for lit in clause])
+
+def abstract_clause(abs, clauses):
+    return [abstract_clause(abs, clause) for clause in clauses]
+
+def mk_lit(m, p):
+    if is_true(m.eval(p)):
+        return p
+    else:
+        return Not(p)
