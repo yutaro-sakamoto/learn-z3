@@ -169,3 +169,22 @@ print(tactics())
 for name in tactics():
     t = Tactic(name)
     print(name, t.help(), t.param_descrs())
+
+x, y = Reals('x y')
+g = Goal()
+g.add(2 < x, Exists(y, And(y > 0, x == y + 2)))
+print(g)
+
+t1 = Tactic('qe-light')
+t2 = Tactic('simplify')
+t = Then(t1, t2)
+print(t(g))
+
+o = Optimize()
+x, y = Ints('x y')
+o.maximize(x + 2 * y)
+
+u, v = BitVecs('u v', 32)
+o.minimize(u + v)
+
+o.add_soft(x > 4, 4)
