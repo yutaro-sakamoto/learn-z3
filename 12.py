@@ -188,3 +188,33 @@ u, v = BitVecs('u v', 32)
 o.minimize(u + v)
 
 o.add_soft(x > 4, 4)
+
+x, y = Ints('x y')
+opt = Optimize()
+opt.set(priority='pareto')
+opt.add(x + y == 10, x >= 0, y >= 0)
+mx = opt.maximize(x)
+my = opt.maximize(y)
+while opt.check() == sat:
+    print (mx.value(), my.value())
+
+a, b, c = Bools('a b c')
+o = Optimize()
+o.add(a == c)
+o.add(Not(And(a, b)))
+o.add_soft(a, 2)
+o.add_soft(b, 3)
+o.add_soft(c, 1)
+print(o.check())
+print(o.model())
+
+
+a, b, c = Bools('a b c')
+o = Optimize()
+o.add(a == c)
+o.add(Not(And(a, b)))
+o.add_soft(Or(a, b), 2)
+o.add_soft(b, 3)
+o.add_soft(c, 1)
+print(o.check())
+print(o.model())
